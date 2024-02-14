@@ -11,6 +11,7 @@ import java.util.List;
 @ToString
 public class DealFinderForm {
     private String productTitle;
-    private double priceRange;
+    private Double priceRange;
+    private Integer numberOfTotalBestDealsToGet;
     private List<String> selectedPlatforms;
 }

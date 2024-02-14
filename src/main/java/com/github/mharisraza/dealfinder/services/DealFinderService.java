@@ -3,8 +3,10 @@ package com.github.mharisraza.dealfinder.services;
 import com.github.mharisraza.dealfinder.config.SeleniumConfiguration;
 import com.github.mharisraza.dealfinder.models.Product;
 import com.github.mharisraza.dealfinder.models.requestmodels.DealFinderForm;
+import com.github.mharisraza.dealfinder.utils.Constant;
 import com.github.mharisraza.dealfinder.utils.WebDriverHelper;
 import org.apache.juli.logging.Log;
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +46,7 @@ public class DealFinderService {
                WebDriverHelper helper = new WebDriverHelper();
                webDriverHelperThreadLocal.set(helper);
 
-              List<Product> scrapedDeals = scrapDeals(platform, dealFinderForm.getProductTitle(), dealFinderForm.getPriceRange());
+              List<Product> scrapedDeals = scrapDeals(platform, dealFinderForm.getProductTitle(), dealFinderForm.getPriceRange(), dealFinderForm.getNumberOfTotalBestDealsToGet());
               productsRef.updateAndGet((existingProducts) -> {
                   existingProducts.addAll(scrapedDeals);
                   return existingProducts;
@@ -68,14 +70,42 @@ public class DealFinderService {
     }
 
 
-    public List<Product> scrapDeals(String platform, String productTitle, Double priceRange) {
+    private List<Product> scrapDeals(String platform, String productTitle, Double priceRange, Integer numberOfTotalBestDealsToGet) {
+
+        // get driver wrapper from thread local and go to the platform.
         WebDriverHelper driverHelper = webDriverHelperThreadLocal.get();
-        driverHelper.goTo(String.format("https://%s", platform));
+        driverHelper.goTo(String.format("https://%s.com", platform));
 
-        List<Product> products = new ArrayList<>();
-        products.add(new Product("https://hello.com", 15.0, 150.0, 10, 5, platform));
+        List<Product> bestDeals = new ArrayList<>();
 
-        return products;
+        switch (platform) {
+            case "amazon" -> bestDeals.addAll(getBestDealsFromAmazon(productTitle, priceRange, numberOfTotalBestDealsToGet));
+            case "flipkart" -> bestDeals.addAll(getBestDealsFromFlipkart(productTitle, priceRange));
+        }
+        return bestDeals;
     }
+
+    private List<Product> getBestDealsFromAmazon(String title, Double priceRange, int numberOfTotalBestDealsToGet) {
+
+        // go to the platform.
+        WebDriverHelper driverHelper = getCurrentInstanceOfWebDriverHelper();
+        driverHelper.goTo(Constant.AMAZON_PLATFORM_INDIA);
+
+        //TODO: verify if there's no captcha then proceed else suspend.
+
+        // input title and search
+        driverHelper.getElementIfExist(By.id("twotabsearchtextbox")).sendKeys(title);
+        driverHelper.getElementIfExist(By.id("nav-search-submit-button")).click();
+        return new ArrayList<>();
+    }
+
+    private List<Product> getBestDealsFromFlipkart(String title, Double priceRange) {
+        return new ArrayList<>();
+    }
+
+    private WebDriverHelper getCurrentInstanceOfWebDriverHelper() {
+        return webDriverHelperThreadLocal.get();
+    }
+
 
 }

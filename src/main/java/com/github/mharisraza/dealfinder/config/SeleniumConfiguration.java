@@ -17,7 +17,7 @@ public class SeleniumConfiguration {
         ChromeOptions chromeOptions = new ChromeOptions();
 
         chromeOptions.setPageLoadStrategy(PageLoadStrategy.EAGER);
-        chromeOptions.addArguments("--headless=new");
+//        chromeOptions.addArguments("--headless=new");
         return new ChromeDriver(chromeOptions);
     }
 }
