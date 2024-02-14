@@ -71,11 +71,6 @@ public class DealFinderService {
 
 
     private List<Product> scrapDeals(String platform, String productTitle, Double priceRange, Integer numberOfTotalBestDealsToGet) {
-
-        // get driver wrapper from thread local and go to the platform.
-        WebDriverHelper driverHelper = webDriverHelperThreadLocal.get();
-        driverHelper.goTo(String.format("https://%s.com", platform));
-
         List<Product> bestDeals = new ArrayList<>();
 
         switch (platform) {
